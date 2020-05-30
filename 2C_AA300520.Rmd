@@ -1,0 +1,145 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+```{r}
+library(tidyverse)
+mpg
+
+```
+```{r}
+str(mpg)
+```
+
+QPLOT - para plots más sencillos en términos de escritura que ggplot
+
+```{r}
+qplot(displ, hwy, data=mpg)
+```
+
+```{r}
+qplot(displ, hwy, data=mpg, shape=drv)
+```
+
+```{r}
+qplot(displ, hwy, data=mpg, color=drv)
+```
+
+```{r}
+qplot(displ, hwy, data=mpg, color=drv, shape=drv)
+```
+
+
+```{r}
+qplot(displ, hwy, data=mpg, geom=c('point','smooth'))
+```
+
+```{r}
+qplot(displ, hwy, data=mpg, color=drv, geom=c('point','smooth'))
+```
+
+```{r}
+qplot(hwy, data=mpg, fill= drv, binwidth=3)
+```
+
+```{r}
+qplot(drv, hwy, data = mpg, fill=drv ,geom = "boxplot")
+
+```
+
+```{r}
+qplot(hwy, data = mpg, fill= drv,facets= drv ~., binwidth=2)
+```
+
+```{r}
+qplot(hwy, data = mpg, facets=.~drv, binwidth=2)
+```
+
+```{r}
+qplot(displ, hwy, data=mpg, color=drv, facets=drv ~., geom=c('point','smooth'))
+```
+
+```{r}
+qplot(hwy, data = mpg, facets=.~drv, binwidth=2, fill= drv, geom = 'density')
+```
+2 PARTE CLASE
+
+
+```{r}
+maacs <- read.csv('/Users/victorialm/Documents/Master_4Sem/AARC/bmi_pm25_no2_sim.csv')
+str(maacs)
+```
+
+```{r}
+maacs
+```
+
+```{r}
+summary(ggplot(maacs, aes(logpm25, NocturnalSympt)))
+
+```
+
+```{r}
+g<- ggplot(maacs, aes(logpm25, NocturnalSympt))
+g+geom_point()
+```
+
+```{r}
+g<- ggplot(maacs, aes(logpm25, NocturnalSympt, color=bmicat))
+g+geom_point() + geom_smooth()
+
+```
+
+```{r}
+g+geom_point() + geom_smooth(method=lm)
+```
+```{r}
+g+geom_point() + geom_smooth(method=lm) + facet_grid(.~ bmicat)
+```
+```{r}
+g + geom_point(aes(color=bmicat), size=4, alpha=1/2) + facet_wrap(.~ bmicat)
+```
+```{r}
+g + geom_point(aes(color = bmicat)) +
+        labs(title = "MAACS Cohort") +
+        labs(x = expression("log " * PM[2.5]), y = "Nocturnal Symptoms")
+```
+```{r}
+g + geom_point(aes(color = bmicat)) + theme_bw(base_family = "Times")
+```
+
+```{r}
+testdat <- data.frame(x = 1:100, y = rnorm(100))
+testdat[50,2] <- 100  ## Outlier!
+g <- ggplot(testdat, aes(x = x, y = y))
+g + geom_line()
+```
+```{r}
+g + geom_line() + ylim(-3,3)
+```
+
+```{r}
+p <- g + geom_line() + coord_cartesian(ylim = c(-3, 3))
+p
+```
+
+```{r}
+p + annotate("text", x = c(45,55), y = c(2,2), label = c("here1", "here2"),
+             color = c("red", "blue"))
+```

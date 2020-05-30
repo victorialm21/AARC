@@ -1,0 +1,121 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+library(tidyverse)
+mpg
+
+```
+```{r}
+ggplot(mpg, aes(x= displ, y = hwy))+
+  geom_point()
+```
+
+
+```{r}
+ggplot(mpg, aes(x= displ, y = hwy, color=drv, shape= drv))+
+  geom_point()
+
+```
+
+```{r}
+ggplot(mpg, aes(x= displ, y = hwy, color=drv))+
+  geom_point() + geom_smooth()
+
+```
+
+```{r}
+ggplot(mpg, aes(hwy, fill=drv))+
+  geom_histogram(binwidth=3) 
+```
+
+
+```{r}
+ggplot(mpg, aes(x = drv, y = hwy, fill=drv)) +
+        geom_boxplot()
+```
+
+```{r}
+
+ggplot(mpg, aes(hwy, fill=drv))+
+  geom_histogram(binwidth=2) + facet_wrap(drv~.)
+
+#qplot(hwy, data = mpg, fill= drv,facets= drv ~., binwidth=2)
+```
+
+```{r}
+
+ggplot(mpg, aes(x= displ, y = hwy, color=drv))+
+  geom_point() + geom_smooth() + facet_wrap(.~drv)
+
+#qplot(displ, hwy, data=mpg, color=drv, facets=drv ~., geom=c('point','smooth'))
+```
+
+```{r}
+ggplot(mpg, aes(x=hwy, fill=drv)) +geom_density() + facet_wrap(.~drv)
+
+#qplot(hwy, data = mpg, facets=.~drv, binwidth=2, fill= drv, geom = 'density')
+```
+
+2 ACTIVIDAD DE CLASE
+
+```{r}
+library(nycflights13)
+library(gapminder)
+flights
+```
+Graficar el número de vuelos 
+
+```{r}
+daily <- flights %>%
+  group_by(dest,day) %>%
+  summarize(count = n())
+daily
+```
+```{r}
+ggplot(daily, aes(x = day, y = log(count,2), color = dest, shape=dest)) + 
+  geom_point() + 
+  scale_shape_manual(values = rep(0:5, 20)) + 
+  labs(title = "Flights", y = "number of flights")
+  #coord_cartesian(ylim=c(1, 512))
+#+ coord_trans(y = 'log2') 
+#+ annotate("text", x = c(45,55), y = c(2,2), label = c("here1", "here2"))
+```
+
+```{r}
+ggplot(daily, aes(x = day, y = log(count,2), color = dest)) + 
+  geom_line() + 
+  labs(title = "Flights", y = "number of flights")
+```
+
+```{r}
+
+ggplot(daily, aes(x = day, y = log(count,2), color = dest, shape=dest)) + 
+  geom_point() +
+  geom_line() + 
+  scale_shape_manual(values = rep(0:5, 20)) + 
+  labs(title = "Flights", y = "number of flights")
+
+#annotate("text", x = c(45,55), y = c(2,2), label = c("here1", "here2"))
+```
+
+```{r}
+gapminder %>% 
+  group_by(year, continent) %>% 
+  summarize(meanLifeExp = mean(lifeExp), totalPop= sum(as.numeric(pop)))
+```
+```{r}
+gapminder
+```
+
+
+```{r}
+ggplot(gapminder, aes(x= gdpPercap, y=lifeExp, color=pop)) +geom_point() + scale_x_log10() + labs(title = "Gapminder") 
+```
+
