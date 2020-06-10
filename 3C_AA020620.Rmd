@@ -1,0 +1,240 @@
+---
+title: "3C_AA020620"
+author: "Victoria"
+date: "6/2/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+library(tidyverse)
+glimpse(mpg)
+```
+
+
+```{r}
+g <- ggplot(mpg, aes(displ)) #+ scale_fill_brewer(palette = "Spectral")
+
+ 
+
+g + geom_histogram(binwidth = .1, 
+                   col="black", 
+                   size=.1) +  # change binwidth
+  labs(title="Histogram with Auto Binning", 
+       subtitle="Engine Displacement across Vehicle Classes") 
+```
+
+```{r}
+g <- ggplot(mpg, aes(displ)) + scale_fill_brewer(palette = "Spectral")
+
+
+g + geom_histogram(aes(fill=class), 
+                   binwidth = , 
+                   col="black", 
+                   size=.1) +  # change binwidth
+  labs(title="Histogram with Auto Binning", 
+       subtitle="Engine Displacement across Vehicle Classes")  
+```
+
+```{r}
+g + geom_histogram(aes(fill=class),
+                   bins=10,
+                   col="black", size = 0.1) +   # change number of bins
+  labs(title="Histogram with Fixed Bins",
+       subtitle="Engine Displacement across Vehicle Classes")
+```
+
+```{r}
+g <- ggplot(mpg, aes(manufacturer))
+g + geom_bar(aes(fill=class), width = 0.5) +
+  theme(axis.text.x = element_text(angle=65, vjust=0.7)) +
+  labs(title="Histogram on Categorical Variable",
+       subtitle="Manufacturer across Vehicle Classes")
+
+```
+
+```{r}
+g <- ggplot(mpg, aes(cty))
+g + geom_density(aes(fill=factor(cyl)), alpha=0.5) +
+    labs(title="Density plot",
+         subtitle="City Mileage Grouped by Number of cylinders",
+         caption="Source: mpg",
+         x="City Mileage",
+         fill="# Cylinders")
+```
+
+```{r}
+g <- ggplot(mpg, aes(class, cty))
+g + geom_boxplot(varwidth=T, fill="dodgerblue", alpha = 0.5) +
+    labs(title="Box plot",
+         subtitle="City Mileage grouped by Class of vehicle",
+         caption="Source: mpg",
+         x="Class of Vehicle",
+         y="City Mileage")
+```
+
+```{r}
+g <- ggplot(mpg, aes(class, cty))
+g + geom_boxplot(aes(fill=factor(cyl))) +  scale_fill_brewer(palette = "Spectral") +
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
+  labs(title="Box plot",
+       subtitle="City Mileage grouped by Class of vehicle",
+       caption="Source: mpg",
+       x="Class of Vehicle",
+       y="City Mileage")
+```
+
+
+```{r}
+g <- ggplot(mpg, aes(class, cty))
+g + geom_violin() +
+  labs(title="Violin plot",
+       subtitle="City Mileage vs Class of vehicle",
+       caption="Source: mpg",
+       x="Class of Vehicle",
+       y="City Mileage")
+```
+
+```{r}
+g + geom_violin(trim =FALSE) + coord_flip()
+```
+
+```{r}
+g <- ggplot(mpg, aes(class, cty))
+p <- g + geom_violin() +
+  labs(title="Violin plot",
+       subtitle="City Mileage vs Class of vehicle",
+       caption="Source: mpg",
+       x="Class of Vehicle",
+       y="City Mileage")
+p
+```
+
+
+
+
+```{r}
+p + stat_summary(fun=median, geom="point", size=2, color="red")
+```
+```{r}
+p + geom_boxplot(width=0.1)
+```
+
+
+
+```{r}
+g <- ggplot(mpg, aes(class, cty, color = class))
+pc <- g + geom_violin() +
+  labs(title="Violin plot",
+       subtitle="City Mileage vs Class of vehicle",
+       caption="Source: mpg",
+       x="Class of Vehicle",
+       y="City Mileage")
+pc
+```
+Changing color from plots
+
+```{r}
+pc + scale_color_brewer(palette="viridis")
+```
+
+
+```{r}
+pc + scale_color_brewer(palette="Dark2")
+```
+
+
+
+```{r}
+library(gridExtra)
+```
+
+
+```{r}
+p_data <- ggplot(mpg, aes(x = hwy))
+p1 <- p_data + geom_histogram(binwidth = 1, color = "grey30", fill = "white") + 
+  labs(title="Bin width 1")
+p2 <-  p_data + geom_histogram(binwidth = 2, color = "dodgerblue", 
+                               fill = "blue", alpha = 0.4) + 
+  labs(title="Bin width 2")
+
+
+p3 <- p_data + geom_histogram(binwidth = 2, color = "grey30", 
+                              fill = "red", alpha = 0.2) + 
+  labs(title="Bin width 3")
+
+ 
+
+grid.arrange(p1, p2, p3, ncol = 3)
+```
+
+```{r}
+library(patchwork)
+(p1 + p2) / p3
+```
+
+```{r}
+ggplot(mpg, aes(x = hwy)) + geom_histogram(aes(y=..density..), color = "grey30", fill = "white") +geom_density(alpha = .2, fill = "antiquewhite3") + labs(title="Bin width 1")
+```
+
+```{r}
+ggplot(mpg, aes(x = hwy)) + geom_histogram(aes(y=..density..), color = "grey30", fill = "white") +geom_density(alpha = .2, fill = "antiquewhite3") + labs(title="Bin width 1") + geom_vline(xintercept = mean(mpg$hwy), color = "red", linetype = "dashed")
+```
+
+```{r}
+compare_mean <- mpg %>%
+        group_by(cyl) %>%
+        summarise(Mean = mean(cty))
+
+ 
+
+g <- ggplot(mpg, aes(cty))
+g + geom_density(aes(fill=factor(cyl)), alpha=0.35) + 
+    labs(title="Density plot", 
+         subtitle="City Mileage Grouped by Number of cylinders",
+         caption="Source: mpg",
+         x="City Mileage",
+         fill="# Cylinders") + 
+  geom_vline(data = compare_mean, aes(xintercept = Mean, color = factor(cyl)),
+                   linetype = 3, size = 0.75)
+```
+
+```{r}
+# Create new dataframe mpg_means_se
+mpg_means_se <- mpg %>%
+  group_by(manufacturer) %>% # Group the data by manufacturer
+  summarize(mean_cty=mean(cty), # Create variable with mean of cty per group
+            sd_cty=sd(cty), # Create variable with sd of cty per group
+            N_cty=n(), # Create new variable N of cty per group
+            se=sd_cty/sqrt(N_cty), # Create variable with se of cty per group
+            upper_limit=mean_cty+se, # Upper limit
+            lower_limit=mean_cty-se # Lower limit
+            )
+mpg_means_se
+```
+
+```{r}
+ggplot(mpg_means_se, aes(x=manufacturer, y=mean_cty, fill=manufacturer)) +
+  geom_errorbar(aes(ymin=lower_limit, ymax=upper_limit), width = 0.3) +
+   geom_bar(stat="identity", alpha= 0.5) +
+  theme(axis.text.x = element_text(angle=65, vjust=0.6), legend.position = "none") +
+  geom_line(aes(group = 1), size = 0.2, color = "red")
+```
+
+```{r}
+ggplot(mpg_means_se, aes(x=reorder(manufacturer, mean_cty), y=mean_cty, fill=manufacturer)) +
+  geom_errorbar(aes(ymin=lower_limit, ymax=upper_limit), width = 0.3) +
+   geom_bar(stat="identity", alpha= 0.5) +
+  theme(axis.text.x = element_text(angle=65, vjust=0.6), legend.position = "none")# +
+  #geom_line(aes(group = 1), size = 0.2, color = "red")
+```
+

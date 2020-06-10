@@ -79,30 +79,45 @@ daily <- flights %>%
 daily
 ```
 ```{r}
-ggplot(daily, aes(x = day, y = log(count,2), color = dest, shape=dest)) + 
+ggplot(daily, aes(x = day, y = count, color = dest, shape=dest)) + 
   geom_point() + 
+  scale_y_continuous(name='number of flights',
+                     trans= 'log2',
+                     breaks= c(1 ,2,4,8,16,32,64,128,256,512)) +
+  scale_x_continuous(name= 'day',
+                     breaks= c(0,5,10,15,20,25,30)) +
   scale_shape_manual(values = rep(0:5, 20)) + 
-  labs(title = "Flights", y = "number of flights")
+  labs(title = "Flights", y = "number of flights") 
+  
   #coord_cartesian(ylim=c(1, 512))
 #+ coord_trans(y = 'log2') 
 #+ annotate("text", x = c(45,55), y = c(2,2), label = c("here1", "here2"))
 ```
 
 ```{r}
-ggplot(daily, aes(x = day, y = log(count,2), color = dest)) + 
+ggplot(daily, aes(x = day, y = count, color = dest)) + 
   geom_line() + 
+  scale_y_continuous(name='number of flights',
+                     trans= 'log2',
+                     breaks= c(1 ,2,4,8,16,32,64,128,256,512)) +
+  scale_x_continuous(name= 'day',
+                     breaks= c(0,5,10,15,20,25,30)) +
   labs(title = "Flights", y = "number of flights")
 ```
 
 ```{r}
 
-ggplot(daily, aes(x = day, y = log(count,2), color = dest, shape=dest)) + 
+ggplot(daily, aes(x = day, y = count, color = dest, shape=dest)) + 
   geom_point() +
   geom_line() + 
   scale_shape_manual(values = rep(0:5, 20)) + 
-  labs(title = "Flights", y = "number of flights")
-
-#annotate("text", x = c(45,55), y = c(2,2), label = c("here1", "here2"))
+  scale_y_continuous(name='number of flights',
+                     trans= 'log2',
+                     breaks= c(1 ,2,4,8,16,32,64,128,256,512)) +
+  scale_x_continuous(name= 'day',
+                     breaks= c(0,5,10,15,20,25,30)) +
+  labs(title = "Flights", y = "number of flights")+
+  annotate("text", x = indices, y = counts, label = unique(daily$dest), size=1)
 ```
 
 ```{r}

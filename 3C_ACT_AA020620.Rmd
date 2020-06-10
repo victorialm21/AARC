@@ -1,0 +1,152 @@
+---
+title: "3C_ACT_AA020620"
+author: "Victoria"
+date: "6/2/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+library(tidyverse)
+library(nycflights13)
+weather
+
+```
+
+
+```{r}
+glimpse(weather)
+
+weather$day<-as.factor(weather$day)
+weather$month<- as.factor(weather$month)
+weather$year<- as.factor(weather$year)
+```
+
+
+
+```{r pressure, echo=FALSE}
+g <- ggplot(weather, aes(humid)) #+ scale_fill_brewer(palette = "Spectral")
+
+
+g + geom_histogram(binwidth = .1, 
+                   col="black", 
+                   size=.1) +  # change binwidth
+  labs(title="Histogram with Auto Binning", 
+       subtitle="Humidity across the US airports") 
+```
+
+
+```{r}
+g <- ggplot(weather, aes(humid)) + scale_fill_brewer(palette = "Spectral")
+
+g + geom_histogram(aes(fill=origin), 
+                   binwidth = , 
+                   col="black", 
+                   size=.1) +  # change binwidth
+  labs(title="Histogram with Auto Binning", 
+       subtitle="Engine Displacement across Vehicle Classes")  
+```
+
+```{r}
+g <- ggplot(weather, aes(temp))
+g + geom_density(aes(fill=factor(month)), alpha=0.5) +
+   scale_fill_brewer(palette = "Spectral") +
+    labs(title="Density plot",
+         subtitle="City Mileage Grouped by Number of cylinders",
+         caption="Source: weather",
+         x="Tempeture",
+         fill="# months")
+```
+
+
+```{r}
+g <- ggplot(weather, aes(month, temp))
+g + geom_boxplot(varwidth=T, fill="dodgerblue", alpha = 0.5) +
+    labs(title="Box plot",
+         subtitle="Tempeture by Month",
+         caption="Source: weather",
+         x="Tempeture",
+         y="Months")
+```
+
+```{r}
+g <- ggplot(weather, aes(month, temp))
+g + geom_boxplot(aes(fill=factor(origin))) +  scale_fill_brewer(palette = "Spectral") +
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
+  labs(title="Box plot",
+       subtitle="Tempeture by Month",
+       caption="Source: mpg",
+       x="Months",
+       y="Tempeture")
+
+```
+
+```{r}
+g <- ggplot(weather, aes(month, temp))
+g + geom_violin() +
+  labs(title="Violin plot",
+       subtitle="Tempeture by month",
+       caption="Source: weather",
+       x="Months",
+       y="Tempeture")
+```
+
+```{r}
+g + geom_violin(trim =FALSE) + coord_flip()
+```
+```{r}
+g <- ggplot(weather, aes(month, temp, color=origin))
+pc <- g + geom_violin() +
+  labs(title="Violin plot",
+       subtitle="Tempeture behavior by month",
+       caption="Source: weather",
+       x="Months",
+       y="Tempeture")
+pc
+```
+
+```{r}
+p_data <- ggplot(weather, aes(x = temp))
+p1 <- p_data + geom_histogram(binwidth = 1, color = "grey30", fill = "white") + 
+  labs(title="Bin width 1")
+p2 <-  p_data + geom_histogram(binwidth = 2, color = "dodgerblue", 
+                               fill = "blue", alpha = 0.4) + 
+  labs(title="Bin width 2")
+
+
+p3 <- p_data + geom_histogram(binwidth = 2, color = "grey30", 
+                              fill = "red", alpha = 0.2) + 
+  labs(title="Bin width 3")
+
+library(patchwork)
+(p1 + p2) / p3
+
+```
+
+
+```{r}
+compare_mean <- weather %>%
+        group_by(month) %>%
+        summarise(Mean = mean(temp))
+
+g <- ggplot(weather, aes(temp))
+g + geom_density(aes(fill=factor(month)), alpha=0.35) + 
+    labs(title="Density plot", 
+         subtitle="Tempeture Grouped by Months",
+         caption="Source: weather",
+         x="Tempeture",
+         fill="# Cylinders") + 
+  geom_vline(data = compare_mean, aes(xintercept = Mean, color = factor(month)),
+                   linetype = 3, size = 0.75)
+```
+
+
