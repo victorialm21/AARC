@@ -63,7 +63,7 @@ ggplot(mpg, aes(x=hwy, fill=drv)) +geom_density() + facet_wrap(.~drv)
 #qplot(hwy, data = mpg, facets=.~drv, binwidth=2, fill= drv, geom = 'density')
 ```
 
-2 ACTIVIDAD DE CLASE
+# 2 ACTIVIDAD DE CLASE
 
 ```{r}
 library(nycflights13)
@@ -88,10 +88,6 @@ ggplot(daily, aes(x = day, y = count, color = dest, shape=dest)) +
                      breaks= c(0,5,10,15,20,25,30)) +
   scale_shape_manual(values = rep(0:5, 20)) + 
   labs(title = "Flights", y = "number of flights") 
-  
-  #coord_cartesian(ylim=c(1, 512))
-#+ coord_trans(y = 'log2') 
-#+ annotate("text", x = c(45,55), y = c(2,2), label = c("here1", "here2"))
 ```
 
 ```{r}
@@ -106,29 +102,45 @@ ggplot(daily, aes(x = day, y = count, color = dest)) +
 ```
 
 ```{r}
+loc <- list()
+for ( destination in unique(flights$dest)) {
+  tmp = filter(daily, dest == destination)
+  loc[[destination]] <- sample_n(tmp,1)
+}
+loc <- do.call(rbind, loc)
+```
 
-ggplot(daily, aes(x = day, y = count, color = dest, shape=dest)) + 
-  geom_point() +
-  geom_line() + 
-  scale_shape_manual(values = rep(0:5, 20)) + 
+```{r}
+ggplot(daily, aes(x = day, y = count, color = dest, shape = dest)) + 
+  geom_line() +
   scale_y_continuous(name='number of flights',
                      trans= 'log2',
                      breaks= c(1 ,2,4,8,16,32,64,128,256,512)) +
   scale_x_continuous(name= 'day',
                      breaks= c(0,5,10,15,20,25,30)) +
-  labs(title = "Flights", y = "number of flights")+
-  annotate("text", x = indices, y = counts, label = unique(daily$dest), size=1)
+  scale_shape_manual(values = rep(0:5, 20)) + 
+  labs(title = 'Flights') + 
+  labs(x = 'day', y = 'Number of flights') + 
+  annotate('text', x = loc$day, y = loc$count, label = loc$dest, size =2 )
 ```
+
+```{r}
+mpg
+```
+
+
+```{r}
+ggplot(mpg, aes(x= factor(model), y=displ, color=cty, size=cyl)) +geom_point() 
+```
+
+
+
 
 ```{r}
 gapminder %>% 
   group_by(year, continent) %>% 
   summarize(meanLifeExp = mean(lifeExp), totalPop= sum(as.numeric(pop)))
 ```
-```{r}
-gapminder
-```
-
 
 ```{r}
 ggplot(gapminder, aes(x= gdpPercap, y=lifeExp, color=pop)) +geom_point() + scale_x_log10() + labs(title = "Gapminder") 

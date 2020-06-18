@@ -1,0 +1,110 @@
+---
+title: "Actividad Clase 3"
+author: "Victoria"
+date: "6/9/2020"
+output: html_document
+---
+
+
+```{r}
+library(moderndive)
+library(tidyverse)
+library(patchwork)
+```
+
+## Lectura de datos y observación de tipo de datos
+
+```{r}
+View(house_prices)
+glimpse(house_prices)
+```
+
+
+
+## Visualization Steps
+
+```{r}
+p2 <- ggplot(house_prices, aes(x = bedrooms)) + geom_histogram(fill = "orange", color="white") +
+  labs(x = "living space (square feet)", title = "House size")
+p2
+```
+
+```{r}
+p2 <- ggplot(house_prices, aes(x = floors)) + geom_histogram(fill = "brown", color="white") +
+  labs(x = "Number of Floors", title = "House Floors")
+p2
+```
+
+
+```{r}
+p3 <- ggplot(house_prices, aes( x= grade)) + 
+  geom_bar(aes(fill=grade)) + 
+  labs(x= 'Grade', title = 'House Grade') +
+  theme(legend.position = 'None')
+p3
+```
+
+```{r}
+ggplot(house_prices, aes(y = price, x = grade, color = factor(bedrooms))) +
+  geom_jitter()
+```
+
+
+```{r}
+ggplot(house_prices, aes(y = price, x = factor(yr_renovated))) +
+  geom_boxplot()
+```
+
+
+```{r}
+g <- ggplot(house_prices, aes(factor(bedrooms), price))
+g + geom_boxplot(aes(fill=factor(floors))) + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
+  labs(title="Box plot",
+       subtitle="Price of the house grouped by number of bedrooms & floors",
+       caption="Source: house_prices",
+       x="Number of bedrooms",
+       y="Price")
+```
+
+
+```{r}
+p_sqft_above <-ggplot(house_prices, aes(x= sqft_above)) +
+  geom_histogram(bindwidth=40, color='white') +
+  labs(x = 'Squared meters', title = 'House size')
+
+p_price <-ggplot(house_prices, aes(x= log10(price))) +
+  geom_histogram(bins=40, color='white', fill='purple') +
+  labs(x = 'Floors', title = 'House price')
+
+p_sqft_above + p_price
+```
+
+```{r}
+(p_sqft_above + p_price) / p3 
+```
+
+```{r}
+ggplot(house_prices, aes(x= sqft_above, y= log10(price), color= grade)) +
+  geom_point(alpha = 0.4, size=.8) +
+  labs(title = 'House prices in Seattle') +
+  facet_wrap(~grade) +
+  geom_smooth(method = 'lm')
+
+
+```
+## Modelado 
+
+```{r}
+price_prediction <- lm(price ~ sqft_above * grade, data= house_prices)
+parameters <- get_regression_table(price_prediction)
+parameters
+```
+
+## Predicción
+
+```{r}
+new_df = data.frame(grade = 6, sqft_above = 5)
+new_df$grade = as.factor(new_df$grade)
+predict(price_prediction, new_df)
+```

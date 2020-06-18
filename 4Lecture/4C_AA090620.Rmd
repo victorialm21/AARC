@@ -1,0 +1,167 @@
+---
+title: "Clase 4"
+author: "Victoria"
+date: "6/9/2020"
+output: html_document
+---
+```{r}
+library(moderndive)
+library(tidyverse)
+library(patchwork)
+```
+
+## Lectura de datos y observación de tipo de datos
+
+```{r}
+View(house_prices)
+glimpse(house_prices)
+```
+
+## Visualization Steps
+
+```{r}
+p1 <- ggplot(house_prices, aes(x= price)) +
+  geom_histogram(color='white') +
+  labs(x = 'price (USD)', title = 'House Price')
+p1
+```
+
+
+
+```{r}
+p2 <- ggplot(house_prices, aes(x = sqft_living)) + geom_histogram(binwidth = 500, fill = "orange", color="white") +
+  labs(x = "living space (square feet)", title = "House size")
+p2
+```
+### Barplot of condition:
+### How good the condition is (Overall)
+
+```{r}
+p3 <- ggplot(house_prices, aes( x= condition)) + 
+  geom_bar(aes(fill=condition)) + 
+  labs(x= 'Condition', title = 'House Condition') +
+  theme(legend.position = 'None')
+p3
+```
+```{r}
+library(patchwork)
+(p1+p2)/p3
+```
+
+### Ejercicio 
+
+```{r}
+p1_new <- ggplot(house_prices, aes(x= price*21.87)) +
+  geom_histogram(bindwidth=4000000, color='white') +
+  labs(x = 'Pesos MXN', title = 'House Price')
+p1
+
+p2_new <- ggplot(house_prices, aes(x = sqft_living*0.0929)) + geom_histogram(binwidth = 40, fill = "orange", color="white") +
+  labs(x = "living space (square meters)", title = "House size")
+p2
+
+(p1_new+p2_new)/p3
+
+```
+
+
+```{r}
+house_prices %>% 
+  summarise(mean_price = mean(price*21),
+          median_price= median(price*21),
+          std_price= sd(price*21))
+```
+
+
+```{r}
+house_prices %>% 
+  summarise(mean_mts_living = mean(sqft_living*0.092903),
+          median_mts_living= median(sqft_living*0.092903),
+          std_mts_living= sd(sqft_living*0.092903))
+```
+
+### Para resolver el problema de sesgo en las ditribuciones de arriba, se hará una transformación logarítmico de ellos
+
+```{r}
+house_prices_new <- house_prices %>% 
+  mutate(log10_price = log10(price*21),
+         log10_size = log10(sqft_living*0.092903))
+
+house_prices_new %>% 
+  select(log10_price, log10_size)
+
+```
+
+```{r}
+p_before <-ggplot(house_prices, aes(x= price*21.87)) +
+  geom_histogram(bindwidth=4000000, color='white') +
+  labs(x = 'Pesos MXN', title = 'House Price: Before')
+
+p_after_price <-ggplot(house_prices_new, aes(x= log10_price)) +
+  geom_histogram(bins=40, color='white', fill='blue') +
+  labs(x = 'Pesos MXN', title = 'House Price: After (log scale)')
+
+p_before + p_after_price
+```
+
+
+```{r}
+p_before <-ggplot(house_prices, aes(x= sqft_living*0.092903)) +
+  geom_histogram(bindwidth=40, color='white') +
+  labs(x = 'Squared meters', title = 'House size: Before')
+
+p_after_size <-ggplot(house_prices_new, aes(x= log10_size)) +
+  geom_histogram(bins=40, color='white', fill='purple') +
+  labs(x = 'Squared meters', title = 'House size: After (log scale)')
+
+p_before + p_after_size
+```
+
+```{r}
+(p_after_size + p_after_price) / p3 
+```
+
+## Modeling
+
+
+```{r}
+ggplot(house_prices_new, aes(x= log10_size, y= log10_price, color= condition)) +
+  geom_point(alpha = 0.4, size=0.2) +
+  labs(title = 'House prices in Seattle')
+```
+
+```{r}
+
+ggplot(house_prices_new, aes(x= log10_size, y= log10_price, color= condition)) +
+  geom_point(alpha = 0.4, size=.8) +
+  labs(title = 'House prices in Seattle') +
+  facet_wrap(~condition)
+
+```
+
+```{r}
+ggplot(house_prices_new, aes(x= log10_size, y= log10_price, color= condition)) +
+  geom_point(alpha = 0.4, size=.8) +
+  labs(title = 'House prices in Seattle') +
+  facet_wrap(~condition) +
+  geom_smooth(method = 'lm')
+
+
+```
+
+### Fit - Regression Model
+
+```{r}
+price_prediction <- lm(log10_price ~ log10_size * condition, data= house_prices_new)
+parameters <- get_regression_table(price_prediction)
+parameters
+```
+
+```{r}
+params <- parameters$estimate
+prediction <- function(params, size, indx) {
+output <- if(indx == 1) params[1] + params[2] *log10(size) else (params[1] + params[1+indx]) +  (params[2] + params[5+indx]) *log10(size)
+return(10^(output)) # going back to dollars
+}
+prediction(params, 85, 3)
+```
