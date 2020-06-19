@@ -1,0 +1,73 @@
+---
+title: "Clase 6"
+author: "Victoria"
+date: "6/18/2020"
+output: html_document
+---
+
+
+```{r pressure, echo=FALSE}
+library(dplyr)
+library(janeaustenr)
+library(tidytext)
+
+book_words <- austen_books() %>%
+  unnest_tokens(word, text) %>%
+  count(book, word, sort = TRUE)
+
+book_words
+```
+
+```{r}
+total_words <- book_words %>% 
+  group_by(book) %>% 
+  summarize(total = sum(n))
+
+total_words
+```
+
+
+```{r}
+book_words <- left_join(book_words, total_words)
+
+book_words
+```
+
+
+```{r}
+freq_by_rank <- book_words %>% 
+  group_by(book) %>% 
+  mutate(rank = row_number(), 
+         `term frequency` = n/total)
+
+freq_by_rank
+
+```
+
+```{r}
+book_words <- book_words %>%
+  bind_tf_idf(word, book, n)
+
+book_words
+```
+
+```{r}
+book_words %>%
+  select(-total) %>%
+  arrange(desc(tf_idf))
+```
+
+```{r}
+book_words %>%
+  arrange(desc(tf_idf)) %>%
+  mutate(word = factor(word, levels = rev(unique(word)))) %>% 
+  group_by(book) %>% 
+  top_n(15) %>% 
+  ungroup() %>%
+  ggplot(aes(word, tf_idf, fill = book)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~book, ncol = 2, scales = "free") +
+  coord_flip()
+```
+
