@@ -23,6 +23,14 @@ total_words <- book_words %>%
 
 book_words <- left_join(book_words, total_words)
 
+freq_by_rank <- book_words %>% 
+    group_by(book) %>% 
+    mutate(rank = row_number(), 
+           `term frequency` = n/total)
+
+freq_by_rank
+
+
 # Define UI for application that draws a histogram
 ui <- fluidPage(
     # shinythemes::themeSelector(),
@@ -32,7 +40,7 @@ ui <- fluidPage(
         sidebarPanel(p('A central question in text mining and NLP is how
                      to quantify what a document is about'),
                      p('Here, as an a example we will be considering'),
-                     h3('jane Austen novels'),
+                     h3('Jane Austen novels'),
                      img(src= 'https://ep01.epimg.net/cultura/imagenes/2017/07/14/babelia/1500041594_163366_1500042008_noticia_normal_recorte1.jpg',heigth = 200, width = 150 ),
                      br(),
                      br(),
@@ -75,6 +83,7 @@ ui <- fluidPage(
                 tabPanel('TF Plots',
                          plotOutput('plot_tf')
                          ),
+                #Actividad
                 tabPanel("Zipf's law",
                          tableOutput("table_rank"),
                          
@@ -93,6 +102,7 @@ ui <- fluidPage(
                          )
                          
                 ),
+                #Actividad
                 tabPanel('tf_idf',
                          fluidRow(
                              column(8,
@@ -132,6 +142,7 @@ server <- function(input, output) {
             theme_minimal()
     })
     
+    #Actividad
     output$table_rank <- renderTable({
         head(freq_by_rank,4)
     })
