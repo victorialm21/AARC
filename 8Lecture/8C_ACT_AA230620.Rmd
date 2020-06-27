@@ -1,0 +1,77 @@
+---
+title: "kmeans_images"
+author: "Lazaro Alonso"
+date: "6/24/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Extracting dominant colours from pictures
+```{r}
+library(imager)
+library(draw)
+```
+
+```{r}
+#install.packages("imager")
+
+# file <- "~/Documents/Master_4Sem/AARC/8Lecture/autumn_drawing_walking_82963_320x480.jpg"
+file <- "autumn_drawing_walking_82963_320x480.jpg"
+#file
+im <- load.image(file)
+plot(im)
+#file
+```
+
+```{r}
+library(tidyverse)
+bdf <- as.data.frame(im, wide="c")
+bdf
+```
+```{r}
+set.seed(10)
+kclust <- kmeans(bdf[c(3,4,5)], centers = 3)
+d<-data.frame(kclust$centers)
+d$y <- c(1,2,3)
+d$x <- c(1,2,3)
+d[1:3]
+```
+
+```{r}
+show_col(rgb(kclust$centers), labels=FALSE, border = NA, ncol=1)
+```
+
+```{r}
+ggplot(data = d, mapping = aes(x = 1, y=1)) + geom_bar(aes(fill = rgb(d[1:3][1])))+
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+```
+
+```{r}
+symbols (0, 0, circles=1, fg=rgb(kclust$centers)[1], bg=rgb(kclust$centers)[1])
+
+
+```
+ 
+```{r}
+kmeans_colors <- function(im, centroides) { 
+    set.seed(20)
+    tmp <- as.data.frame(im, wide="c")
+    tmp <- kmeans(tmp[,c(3,4,5)], centers = centroides)
+    return (rgb(tmp$centers))
+}
+
+file <- "autumn_drawing_walking_82963_320x480.jpg"
+im <- load.image(file)
+
+tmp=kmeans_colors(im=im, 5)
+
+ggplot(as.data.frame(tmp), aes(x = tmp)) +
+            geom_bar(size = 25,  fill = tmp)
+```
+
+

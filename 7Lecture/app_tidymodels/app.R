@@ -4,6 +4,8 @@
 library(shiny)
 library(tidymodels)
 library(shinythemes)
+library(ggplot2)
+library(tidyr)
 
 options(shiny.autoreload = TRUE)
 
@@ -104,24 +106,85 @@ ui <- fluidPage(
                                                  applications, where you must combine results from multiple analyses. These could be 
                                                  subgroups of data, analyses using different models, bootstrap replicates, permutations,
                                                  and so on. In particular, it plays well with the `nest()/unnest()` functions from', code('tidyr'), 'and
-                                                 the map() function in', code('purrr'))
-                                            
+                                                 the map() function in', code('purrr'),'.'), 
+                                               h4('CORRELATION ANALYSIS'),
+                                               br(),
+                                               p('Let’s demonstrate this with a simple data set, the built-in', strong('Orange'), '. We start by
+                                                 coercing', strong('Orange'), 'to a tibble. This gives a nicer print method that will be especially
+                                                 useful later on when we start working with list-columns.'),
+                                               sidebarPanel(width=12,
+                                                   p('library(tidymodels)
+                                                   data(Orange)
+                                                    Orange <- as_tibble(Orange)
+                                                    Orange
+                                                    #> # A tibble: 35 x 3
+                                                    #>    Tree    age circumference
+                                                    #>    <ord> <dbl>         <dbl>
+                                                    #>  1 1       118            30
+                                                    #>  2 1       484            58
+                                                    #>  3 1       664            87
+                                                    #>  4 1      1004           115
+                                                    #>  5 1      1231           120
+                                                    #>  6 1      1372           142
+                                                    #>  7 1      1582           145
+                                                    #>  8 2       118            33
+                                                    #>  9 2       484            69
+                                                    #> 10 2       664           111
+                                                    #> # … with 25 more rows')
+                                               ),
+                                               plotOutput("linear_plot")
+                                             
                                                
-                                               
-                                               # h4("Table"),
-                                               # tableOutput("table"),
-                                               # h4("Verbatim text output"),
-                                               # verbatimTextOutput("txtout"),
-                                               # h1("Header 1"),
-                                               # h2("Header 2"),
-                                               # h3("Header 3"),
-                                               # h4("Header 4"),
-                                               # h5("Header 5")
                                       ),
-                                      tabPanel('K-means clustering'
+                                      tabPanel('K-means clustering',
+                                               h5('LEARNING OBJECTIVE'),
+                                               br(),
+                                               p(em('Summarize clustering characteristics and estimate the best number
+                                               of clusters for a data set.')),
+                                               br(),
+                                               h4('INTRODUCTION'),
+                                               br(),
+                                               p('To use the code in this article, you will need to install the following
+                                                 packages: tidymodels and tidyr.'),
+                                               br(),
+                                               p('K-means clustering serves as a useful example of applying tidy data 
+                                                 principles to statistical analysis, and especially the distinction between
+                                                 the three tidying functions:'),
+                                               uiOutput("Klist"),
+                                               p('Let’s start by generating some random two-dimensional data with three clusters.
+                                                 Data in each cluster will come from a multivariate gaussian distribution, with
+                                                 different means for each cluster:'),
+                                               sidebarPanel(width=12,
+                                                            p('library(tidymodels)', br(),
+                                                                    'library(tidyr)',br(),
+                                                                    'set.seed(27)',br(),
+                                                                    'centers <- tibble(
+                                                                      cluster = factor(1:3), 
+                                                                      num_points = c(100, 150, 50),  # number points in each cluster
+                                                                      x1 = c(5, 0, -3),              # x1 coordinate of cluster center
+                                                                      x2 = c(-1, 1, -2)              # x2 coordinate of cluster center
+                                                                    )',
+                                                                    br(),
+                                                                    br(),
+                                                                    'labelled_points <- 
+                                                                      centers %>%
+                                                                      mutate(
+                                                                        x1 = map2(num_points, x1, rnorm),
+                                                                        x2 = map2(num_points, x2, rnorm)
+                                                                      ) %>% 
+                                                                      select(-num_points) %>% 
+                                                                      unnest(cols = c(x1, x2))',br(),
+                                                                    
+                                                                    'ggplot(labelled_points, aes(x1, x2, color = cluster)) +
+                                                                      geom_point(alpha = 0.3)')
+                                               ),
+                                               plotOutput("kplot")
+                                               
+                                               
                                                
                                       ),
-                                      tabPanel('Bootstrap resampling'
+                                      tabPanel('Bootstrap resampling',
+                                               
                                                
                                       ),
                                       tabPanel(' Hypothesis testing'
@@ -212,6 +275,43 @@ server <- function(input, output, session) {
         my_test <- tags$iframe(src=paste0("https://", input$state,".tidymodels.org"), height=600, width=1500)
         print(my_test)
     })
+    
+    data(Orange)
+    Orange <- as_tibble(Orange)
+
+    output$linear_plot <- renderPlot({
+        ggplot(Orange, aes(age, circumference, color = Tree)) +
+            geom_line()
+    })
+    
+    output$Klist <- renderUI(HTML("<ul><li>tidy()</li><li>augment()</li><li>glance()</li></ul>"))
+    
+    
+    set.seed(27)
+    
+    centers <- tibble(
+        cluster = factor(1:3), 
+        num_points = c(100, 150, 50),  # number points in each cluster
+        x1 = c(5, 0, -3),              # x1 coordinate of cluster center
+        x2 = c(-1, 1, -2)              # x2 coordinate of cluster center
+    )
+    
+    labelled_points <- 
+        centers %>%
+        mutate(
+            x1 = map2(num_points, x1, rnorm),
+            x2 = map2(num_points, x2, rnorm)
+        ) %>% 
+        select(-num_points) %>% 
+        unnest(cols = c(x1, x2))
+    
+    
+    output$kplot <- renderPlot({
+        ggplot(labelled_points, aes(x1, x2, color = cluster)) +
+            geom_point(alpha = 0.3)
+    })
+    
+    
 }
 
 # Run the application 
