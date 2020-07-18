@@ -51,25 +51,25 @@ themes <- list("grey" = theme_grey(), "bw" = theme_bw(), "Light" = theme_light()
 ui <- fluidPage(
     
     # Application title
-    titlePanel("Seattle house prices"),
+    titlePanel("Apps Activity"),
     
-    # Sidebar with a slider input for number of bins 
+    # Sidebar with a slider input for number of bins
     sidebarLayout(
         sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 20), 
+            # sliderInput("bins",
+            #             "Number of bins:",
+            #             min = 1,
+            #             max = 50,
+            #             value = 20), 
+            # 
+            # sliderInput("price_bins",
+            #             "Number of bins:",
+            #             min = 1,
+            #             max = 50,
+            #             value = 20), 
             
-            sliderInput("price_bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 20), 
-            
-            colourInput("color", "Select Fill colour", value = "orange"),
-            colourInput("colorLine", "Select Line colour", value = "white"),
+            # colourInput("color", "Select Fill colour", value = "orange"),
+            # colourInput("colorLine", "Select Line colour", value = "white"),
             selectInput("theme", label = h4("Select theme for plot"), choices = names(themes)),
             selectInput("measures", label = h4("Select statistic measure for plot"), choices = names(statistic_measures))
         ),
@@ -77,6 +77,7 @@ ui <- fluidPage(
         # Show a plot of the generated distribution
         mainPanel(
             plotOutput("distPlot")
+
         )
     )
 )
@@ -99,7 +100,8 @@ server <- function(input, output) {
                  caption="Source: mpg",
                  x="City Mileage",
                  fill="# Cylinders") +
-            statistic_measures[[input$measures]]
+            themes[[input$theme]] +
+            statistic_measures[[input$measures]] 
         p1
         # p2 <- ggplot(house_prices, aes(x = log10_price)) + 
         #     geom_histogram(bins = input$price_bins, color = colorline, fill = colorfill) +
